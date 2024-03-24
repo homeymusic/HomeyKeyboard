@@ -4,7 +4,9 @@ import SwiftUI
 @_exported import Tonic
 
 /// Touch-oriented musical keyboard
-public struct Keyboard<Content>: View where Content: View {
+public struct Keyboard<Content>: Identifiable, View where Content: View {
+    public let id = UUID()
+    
     let content: (Pitch, Bool) -> Content
 
     /// model  contains the keys, their status and touches
