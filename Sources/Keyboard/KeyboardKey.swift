@@ -3,6 +3,17 @@
 import SwiftUI
 import Tonic
 
+public enum Viewpoint {
+    case diatonic
+    case intervallic
+}
+
+func mod(_ a: Int, _ n: Int) -> Int {
+    precondition(n > 0, "modulus must be positive")
+    let r = a % n
+    return r >= 0 ? r : r + n
+}
+
 /// A default visual representation for a key.
 public struct KeyboardKey: View {
     /// Initialize the keyboard key
@@ -14,7 +25,10 @@ public struct KeyboardKey: View {
     ///   - isActivatedExternally: Usually used for representing incoming MIDI
     public init(pitch: Pitch,
                 isActivated: Bool,
+                viewpoint: Viewpoint = .diatonic,
+                tonicPitch: Pitch = Pitch(60),
                 text: String = "unset",
+                intervallicKeyColors: [CGColor] = PitchColor.homey,
                 whiteKeyColor: Color = .white,
                 blackKeyColor: Color = .black,
                 pressedColor: Color = .red,
@@ -24,6 +38,8 @@ public struct KeyboardKey: View {
     {
         self.pitch = pitch
         self.isActivated = isActivated
+        self.viewpoint = viewpoint
+        self.tonicPitch = tonicPitch
         if text == "unset" {
             var newText = ""
             if pitch.note(in: .C).noteClass.description == "C" {
@@ -35,6 +51,7 @@ public struct KeyboardKey: View {
         } else {
             self.text = text
         }
+        self.intervallicKeyColors = intervallicKeyColors
         self.whiteKeyColor = whiteKeyColor
         self.blackKeyColor = blackKeyColor
         self.pressedColor = pressedColor
@@ -45,21 +62,32 @@ public struct KeyboardKey: View {
 
     var pitch: Pitch
     var isActivated: Bool
+    var viewpoint: Viewpoint
+    var tonicPitch: Pitch
+    var text: String
     var whiteKeyColor: Color
+    var intervallicKeyColors: [CGColor]
     var blackKeyColor: Color
     var pressedColor: Color
     var flatTop: Bool
     var alignment: Alignment
-    var text: String
     var isActivatedExternally: Bool
 
     var keyColor: Color {
         if isActivatedExternally || isActivated {
             return pressedColor
         }
-        return pitch.note(in: .C).accidental == .natural ? whiteKeyColor : blackKeyColor
+        switch viewpoint {
+        case .diatonic:
+            return pitch.note(in: .C).accidental == .natural ? whiteKeyColor : blackKeyColor
+        case .intervallic:
+            let intervalIntegerNotation: Int = Int(pitch.midiNoteNumber - tonicPitch.midiNoteNumber)
+            let intervalClassIntegerNotation = mod(intervalIntegerNotation, 12)
+            return Color(intervallicKeyColors[intervalClassIntegerNotation])
+        }
+        
     }
-
+    
     var isWhite: Bool {
         pitch.note(in: .C).accidental == .natural
     }
