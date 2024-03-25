@@ -28,11 +28,16 @@ struct Piano<Content>: View where Content: View {
                         }
                         ForEach(spacer.pitchRange, id: \.self) { pitch in
                             if spacer.isBlackKey(Pitch(intValue: pitch.intValue)) {
-                                KeyContainer(model: keyboard,
-                                             pitch: Pitch(intValue: pitch.intValue),
-                                             zIndex: 1,
-                                             content: content)
-                                    .frame(width: spacer.blackKeyWidth(geo.size.width))
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 0.125 * spacer.blackKeyWidth(geo.size.width))
+                                        .stroke(.black, lineWidth: 2)
+                                        .frame(width: spacer.blackKeyWidth(geo.size.width))
+                                    KeyContainer(model: keyboard,
+                                                 pitch: Pitch(intValue: pitch.intValue),
+                                                 zIndex: 1,
+                                                 content: content)
+                                }
+                                .frame(width: spacer.blackKeyWidth(geo.size.width))
                             } else {
                                 Rectangle().opacity(0)
                                     .frame(width: spacer.blackKeySpacerWidth(geo.size.width, pitch: pitch))
