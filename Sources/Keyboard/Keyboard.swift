@@ -44,6 +44,18 @@ public struct Keyboard<Content>: Identifiable, View where Content: View {
     public var body: some View {
         ZStack {
             switch layout {
+            case let .isomorphic(pitchRange, root, scale):
+                Isomorphic(content: content,
+                           model: model,
+                           pitchRange: pitchRange,
+                           root: root,
+                           scale: scale)
+            case let .symmetric(pitchRange, root, scale):
+                Symmetric(content: content,
+                           model: model,
+                           pitchRange: pitchRange,
+                           root: root,
+                           scale: scale)
             case let .piano(pitchRange, initialSpacerRatio, spacerRatio, relativeBlackKeyWidth, relativeBlackKeyHeight):
                 Piano(content: content,
                       keyboard: model,
@@ -52,12 +64,6 @@ public struct Keyboard<Content>: Identifiable, View where Content: View {
                                           spacerRatio: spacerRatio,
                                           relativeBlackKeyWidth: relativeBlackKeyWidth,
                                           relativeBlackKeyHeight: relativeBlackKeyHeight))
-            case let .isomorphic(pitchRange, root, scale):
-                Isomorphic(content: content,
-                           model: model,
-                           pitchRange: pitchRange,
-                           root: root,
-                           scale: scale)
             case let .guitar(openPitches, fretCount):
                 Guitar(content: content, model: model, openPitches: openPitches, fretCount: fretCount)
             case let .verticalIsomorphic(pitchRange, root, scale):
@@ -113,12 +119,14 @@ public extension Keyboard where Content == KeyboardKey {
 
         var flatTop = false
         switch layout {
-        case .guitar:
-            alignment = .center
         case .isomorphic:
+            alignment = .bottom
+        case .symmetric:
             alignment = .bottom
         case .piano:
             flatTop = true
+        case .guitar:
+            alignment = .center
         case .verticalIsomorphic:
             alignment = .trailing
         case .verticalPiano:
