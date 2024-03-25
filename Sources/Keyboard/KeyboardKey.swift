@@ -76,12 +76,11 @@ public struct KeyboardKey: View {
                 return pitch.note(in: .C).accidental == .natural ? whiteKeyColor : blackKeyColor
             }
         case .intervallic:
-            let intervalIntegerNotation: Int = Int(pitch.semitones(to: tonicPitch))
-            let intervalClassIntegerNotation = modulo(intervalIntegerNotation, 12)
+        let color: Color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
            if isActivatedExternally || isActivated {
-                return Color(intervallicKeyColors[intervalClassIntegerNotation]).adjust(brightness: -0.3)
+               return color.adjust(brightness: -0.1)
             } else {
-                return Color(intervallicKeyColors[intervalClassIntegerNotation])
+                return color
             }
         }
         
@@ -150,12 +149,6 @@ public struct KeyboardKey: View {
             }
         }
     }
-}
-
-func modulo(_ a: Int, _ n: Int) -> Int {
-    precondition(n > 0, "modulus must be positive")
-    let r = a % n
-    return r >= 0 ? r : r + n
 }
 
 extension Color {
