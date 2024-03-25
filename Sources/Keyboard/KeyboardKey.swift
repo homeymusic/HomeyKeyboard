@@ -8,12 +8,6 @@ public enum Viewpoint {
     case intervallic
 }
 
-func mod(_ a: Int, _ n: Int) -> Int {
-    precondition(n > 0, "modulus must be positive")
-    let r = a % n
-    return r >= 0 ? r : r + n
-}
-
 /// A default visual representation for a key.
 public struct KeyboardKey: View {
     /// Initialize the keyboard key
@@ -74,16 +68,21 @@ public struct KeyboardKey: View {
     var isActivatedExternally: Bool
 
     var keyColor: Color {
-        if isActivatedExternally || isActivated {
-            return pressedColor
-        }
         switch viewpoint {
         case .diatonic:
-            return pitch.note(in: .C).accidental == .natural ? whiteKeyColor : blackKeyColor
+            if isActivatedExternally || isActivated {
+                return pressedColor
+            } else {
+                return pitch.note(in: .C).accidental == .natural ? whiteKeyColor : blackKeyColor
+            }
         case .intervallic:
-            let intervalIntegerNotation: Int = Int(pitch.midiNoteNumber - tonicPitch.midiNoteNumber)
-            let intervalClassIntegerNotation = mod(intervalIntegerNotation, 12)
-            return Color(intervallicKeyColors[intervalClassIntegerNotation])
+            let intervalIntegerNotation: Int = Int(pitch.semitones(to: tonicPitch))
+            let intervalClassIntegerNotation = modulo(intervalIntegerNotation, 12)
+           if isActivatedExternally || isActivated {
+                return Color(intervallicKeyColors[intervalClassIntegerNotation]).adjust(brightness: -0.3)
+            } else {
+                return Color(intervallicKeyColors[intervalClassIntegerNotation])
+            }
         }
         
     }
@@ -150,5 +149,26 @@ public struct KeyboardKey: View {
                     .padding(relativeFontSize(in: proxy.size) / 3.0)
             }
         }
+    }
+}
+
+func modulo(_ a: Int, _ n: Int) -> Int {
+    precondition(n > 0, "modulus must be positive")
+    let r = a % n
+    return r >= 0 ? r : r + n
+}
+
+extension Color {
+    func adjust(hue: CGFloat = 0, saturation: CGFloat = 0, brightness: CGFloat = 0, opacity: CGFloat = 1) -> Color {
+        let color = UIColor(self)
+        var currentHue: CGFloat = 0
+        var currentSaturation: CGFloat = 0
+        var currentBrigthness: CGFloat = 0
+        var currentOpacity: CGFloat = 0
+
+        if color.getHue(&currentHue, saturation: &currentSaturation, brightness: &currentBrigthness, alpha: &currentOpacity) {
+            return Color(hue: currentHue + hue, saturation: currentSaturation + saturation, brightness: currentBrigthness + brightness, opacity: currentOpacity + opacity)
+        }
+        return self
     }
 }
