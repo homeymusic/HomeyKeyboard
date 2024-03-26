@@ -28,6 +28,7 @@ public struct KeyboardKey: View {
                 intervallicKeySymbols: [any Shape] = IntervalSymbol.homey,
                 intervallicSymbolColors: [CGColor] = IntervalColor.homey,
                 twoSymbolsOnPerfects: Bool = false,
+                backgroundColor: Color = .gray,
                 whiteKeyColor: Color = .white,
                 blackKeyColor: Color = .black,
                 pressedColor: Color = .red,
@@ -54,6 +55,7 @@ public struct KeyboardKey: View {
         self.intervallicKeySymbols = intervallicKeySymbols
         self.intervallicSymbolColors = intervallicSymbolColors
         self.twoSymbolsOnPerfects = twoSymbolsOnPerfects
+        self.backgroundColor = backgroundColor
         self.whiteKeyColor = whiteKeyColor
         self.blackKeyColor = blackKeyColor
         self.pressedColor = pressedColor
@@ -71,6 +73,7 @@ public struct KeyboardKey: View {
     var intervallicKeyColors: [CGColor]
     var intervallicKeySymbols: [any Shape]
     var intervallicSymbolColors: [CGColor]
+    var backgroundColor: Color
     var twoSymbolsOnPerfects: Bool
     var blackKeyColor: Color
     var pressedColor: Color
@@ -159,7 +162,7 @@ public struct KeyboardKey: View {
             ZStack(alignment: alignment) {
                 ZStack {
                     Rectangle()
-                        .fill(.black)
+                        .fill(backgroundColor)
                         .padding(.top, topPadding(proxy.size))
                         .padding(.leading, leadingPadding(proxy.size))
                         .cornerRadius(relativeCornerRadius(in: proxy.size))
@@ -178,26 +181,28 @@ public struct KeyboardKey: View {
                     .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
                     .foregroundColor(textColor)
                     .padding(relativeFontSize(in: proxy.size) / 3.0)
-                let symbolSize = proxy.size.width / pow(goldenRatio, 3)
-                if twoSymbolsOnPerfects && (Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
-                    VStack(spacing: 0) {
+                if viewpoint == .intervallic {
+                    let symbolSize = proxy.size.width / pow(goldenRatio, 3)
+                    if twoSymbolsOnPerfects && (Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
+                        VStack(spacing: 0) {
+                            AnyShape(keySymbol)
+                                .foregroundColor(symbolColor)
+                                .aspectRatio(1.0, contentMode: .fit)
+                                .frame(width: symbolSize)
+                                .offset(y: proxy.size.height * 0.25 + 0.5 * symbolSize)
+                            AnyShape(keySymbol)
+                                .foregroundColor(symbolColor)
+                                .aspectRatio(1.0, contentMode: .fit)
+                                .frame(width: symbolSize)
+                                .offset(y: -proxy.size.height * 0.25 - 0.5 * symbolSize)
+                        }
+                    } else {
                         AnyShape(keySymbol)
                             .foregroundColor(symbolColor)
                             .aspectRatio(1.0, contentMode: .fit)
+                            .padding([.top, .bottom], 10)
                             .frame(width: symbolSize)
-                            .offset(y: proxy.size.height * 0.25 + 0.5 * symbolSize)
-                        AnyShape(keySymbol)
-                            .foregroundColor(symbolColor)
-                            .aspectRatio(1.0, contentMode: .fit)
-                            .frame(width: symbolSize)
-                            .offset(y: -proxy.size.height * 0.25 - 0.5 * symbolSize)
                     }
-                } else {
-                    AnyShape(keySymbol)
-                        .foregroundColor(symbolColor)
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .padding([.top, .bottom], 10)
-                        .frame(width: symbolSize)
                 }
             }
         }
