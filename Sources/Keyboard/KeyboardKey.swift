@@ -27,6 +27,7 @@ public struct KeyboardKey: View {
                 intervallicKeyColors: [CGColor] = IntervalColor.homey,
                 intervallicKeySymbols: [any Shape] = IntervalSymbol.homey,
                 intervallicSymbolColors: [CGColor] = IntervalColor.homey,
+                twoSymbolsOnPerfects: Bool = false,
                 whiteKeyColor: Color = .white,
                 blackKeyColor: Color = .black,
                 pressedColor: Color = .red,
@@ -52,6 +53,7 @@ public struct KeyboardKey: View {
         self.intervallicKeyColors = intervallicKeyColors
         self.intervallicKeySymbols = intervallicKeySymbols
         self.intervallicSymbolColors = intervallicSymbolColors
+        self.twoSymbolsOnPerfects = twoSymbolsOnPerfects
         self.whiteKeyColor = whiteKeyColor
         self.blackKeyColor = blackKeyColor
         self.pressedColor = pressedColor
@@ -69,6 +71,7 @@ public struct KeyboardKey: View {
     var intervallicKeyColors: [CGColor]
     var intervallicKeySymbols: [any Shape]
     var intervallicSymbolColors: [CGColor]
+    var twoSymbolsOnPerfects: Bool
     var blackKeyColor: Color
     var pressedColor: Color
     var flatTop: Bool
@@ -175,11 +178,27 @@ public struct KeyboardKey: View {
                     .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
                     .foregroundColor(textColor)
                     .padding(relativeFontSize(in: proxy.size) / 3.0)
-                AnyShape(keySymbol)
-                    .foregroundColor(symbolColor)
-                    .aspectRatio(1.0, contentMode: .fit)
-                    .padding([.top, .bottom], 10)
-                    .frame(width: proxy.size.width / pow(goldenRatio, 3))
+                let symbolSize = proxy.size.width / pow(goldenRatio, 3)
+                if twoSymbolsOnPerfects && (Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
+                    VStack(spacing: 0) {
+                        AnyShape(keySymbol)
+                            .foregroundColor(symbolColor)
+                            .aspectRatio(1.0, contentMode: .fit)
+                            .frame(width: symbolSize)
+                            .offset(y: proxy.size.height * 0.25 + 0.5 * symbolSize)
+                        AnyShape(keySymbol)
+                            .foregroundColor(symbolColor)
+                            .aspectRatio(1.0, contentMode: .fit)
+                            .frame(width: symbolSize)
+                            .offset(y: -proxy.size.height * 0.25 - 0.5 * symbolSize)
+                    }
+                } else {
+                    AnyShape(keySymbol)
+                        .foregroundColor(symbolColor)
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .padding([.top, .bottom], 10)
+                        .frame(width: symbolSize)
+                }
             }
         }
     }
