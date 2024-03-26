@@ -3,6 +3,8 @@
 import SwiftUI
 import Tonic
 
+let goldenRatio: CGFloat = (1.0 + sqrt(5)) / 2
+
 public enum Viewpoint {
     case diatonic
     case intervallic
@@ -22,7 +24,9 @@ public struct KeyboardKey: View {
                 viewpoint: Viewpoint = .diatonic,
                 tonicPitch: Pitch = Pitch(60),
                 text: String = "unset",
-                intervallicKeyColors: [CGColor] = PitchColor.homey,
+                intervallicKeyColors: [CGColor] = IntervalColor.homey,
+                intervallicKeySymbols: [any Shape] = IntervalSymbol.homey,
+                intervallicSymbolColors: [CGColor] = IntervalColor.homey,
                 whiteKeyColor: Color = .white,
                 blackKeyColor: Color = .black,
                 pressedColor: Color = .red,
@@ -46,6 +50,8 @@ public struct KeyboardKey: View {
             self.text = text
         }
         self.intervallicKeyColors = intervallicKeyColors
+        self.intervallicKeySymbols = intervallicKeySymbols
+        self.intervallicSymbolColors = intervallicSymbolColors
         self.whiteKeyColor = whiteKeyColor
         self.blackKeyColor = blackKeyColor
         self.pressedColor = pressedColor
@@ -61,6 +67,8 @@ public struct KeyboardKey: View {
     var text: String
     var whiteKeyColor: Color
     var intervallicKeyColors: [CGColor]
+    var intervallicKeySymbols: [any Shape]
+    var intervallicSymbolColors: [CGColor]
     var blackKeyColor: Color
     var pressedColor: Color
     var flatTop: Bool
@@ -83,7 +91,19 @@ public struct KeyboardKey: View {
                 return color
             }
         }
-        
+    }
+    
+    var keySymbol: any Shape {
+        return intervallicKeySymbols[Int(pitch.intervalClass(to: tonicPitch))]
+    }
+    
+    var symbolColor: Color {
+        let color: Color = Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: -0.1)
+        if isActivatedExternally || isActivated {
+            return color.adjust(brightness: -0.1)
+        } else {
+            return color
+        }
     }
     
     var isWhite: Bool {
@@ -146,6 +166,10 @@ public struct KeyboardKey: View {
                     .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
                     .foregroundColor(textColor)
                     .padding(relativeFontSize(in: proxy.size) / 3.0)
+                AnyShape(keySymbol)
+                    .foregroundColor(symbolColor)
+                    .aspectRatio(1.0, contentMode: .fit)
+                    .frame(width: proxy.size.width / pow(goldenRatio, 3))
             }
         }
     }
@@ -165,3 +189,4 @@ extension Color {
         return self
     }
 }
+
