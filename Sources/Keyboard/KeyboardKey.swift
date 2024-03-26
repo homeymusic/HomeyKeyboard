@@ -28,10 +28,10 @@ public struct KeyboardKey: View {
                 intervallicKeySymbols: [any Shape] = IntervalSymbol.homey,
                 intervallicSymbolColors: [CGColor] = IntervalColor.homey,
                 twoSymbolsOnPerfects: Bool = false,
-                backgroundColor: Color = .gray,
+                backgroundColor: Color = .black,
                 whiteKeyColor: Color = .white,
                 blackKeyColor: Color = .black,
-                pressedColor: Color = .red,
+                pressedColor: Color? = nil,
                 flatTop: Bool = false,
                 alignment: Alignment = .bottom,
                 isActivatedExternally: Bool = false)
@@ -76,7 +76,7 @@ public struct KeyboardKey: View {
     var backgroundColor: Color
     var twoSymbolsOnPerfects: Bool
     var blackKeyColor: Color
-    var pressedColor: Color
+    var pressedColor: Color?
     var flatTop: Bool
     var alignment: Alignment
     var isActivatedExternally: Bool
@@ -84,10 +84,15 @@ public struct KeyboardKey: View {
     var keyColor: Color {
         switch viewpoint {
         case .diatonic:
+            let color: Color = pitch.note(in: .C).accidental == .natural ? whiteKeyColor : blackKeyColor
             if isActivatedExternally || isActivated {
-                return pressedColor
+                if pressedColor == nil {
+                    return color.adjust(brightness: -0.1)
+                } else {
+                   return pressedColor!
+                }
             } else {
-                return pitch.note(in: .C).accidental == .natural ? whiteKeyColor : blackKeyColor
+                return color
             }
         case .intervallic:
         let color: Color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
