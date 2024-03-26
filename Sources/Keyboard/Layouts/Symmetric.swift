@@ -10,7 +10,14 @@ struct Symmetric<Content>: View where Content: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            let P1 = pitchRange.startIndex
+            let dP5 = pitchRange.startIndex
+            let dtt = pitchRange.index(after: dP5)
+            let dP4 = pitchRange.index(after: dtt)
+            let dm3 = pitchRange.index(after: dP4)
+            let dM3 = pitchRange.index(after: dm3)
+            let dm2 = pitchRange.index(after: dM3)
+            let dM2 = pitchRange.index(after: dm2)
+            let P1 = pitchRange.index(after: dM2)
             let m2 = pitchRange.index(after: P1)
             let M2 = pitchRange.index(after: m2)
             let m3 = pitchRange.index(after: M2)
@@ -23,7 +30,54 @@ struct Symmetric<Content>: View where Content: View {
             let m7 = pitchRange.index(after: M6)
             let M7 = pitchRange.index(after: m7)
             let P8 = pitchRange.index(after: M7)
-            
+            let m9 = pitchRange.index(after: P8)
+            let M9 = pitchRange.index(after: m9)
+            let m10 = pitchRange.index(after: M9)
+            let M10 = pitchRange.index(after: m10)
+            let P11 = pitchRange.index(after: M10)
+            let ttt = pitchRange.index(after: P11)
+            let P12 = pitchRange.index(after: ttt)
+
+            // below main
+            KeyContainer(model: model,
+                         pitch: pitchRange[dP5],
+                         content: content)
+            KeyContainer(model: model,
+                         pitch: pitchRange[dP4],
+                         content: content)
+            .overlay() {
+                GeometryReader { proxy in
+                    let ttLength = tritoneLength(proxy.size)
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 0.125 * ttLength)
+                            .stroke(.black, lineWidth: 3)
+                            .frame(width: ttLength, height: ttLength)
+                        KeyContainer(model: model,
+                                     pitch: pitchRange[dtt],
+                                     zIndex: 1,
+                                     content: content)
+                        .frame(width: ttLength, height: ttLength)
+                    }
+                    .offset(x: -ttLength / 2.0, y: proxy.size.height / 2.0 - ttLength / 2.0)
+                }
+            }
+            VStack(spacing: 0){
+                KeyContainer(model: model,
+                             pitch: pitchRange[dM3],
+                             content: content)
+                KeyContainer(model: model,
+                             pitch: pitchRange[dm3],
+                             content: content)
+            }
+            VStack(spacing: 0){
+                KeyContainer(model: model,
+                             pitch: pitchRange[dM2],
+                             content: content)
+                KeyContainer(model: model,
+                             pitch: pitchRange[dm2],
+                             content: content)
+            }
+            // main octave
             KeyContainer(model: model,
                          pitch: pitchRange[P1],
                          content: content)
@@ -54,7 +108,7 @@ struct Symmetric<Content>: View where Content: View {
                     let ttLength = tritoneLength(proxy.size)
                     ZStack {
                         RoundedRectangle(cornerRadius: 0.125 * ttLength)
-                            .stroke(.black, lineWidth: 2)
+                            .stroke(.black, lineWidth: 3)
                             .frame(width: ttLength, height: ttLength)
                         KeyContainer(model: model,
                                      pitch: pitchRange[tt],
@@ -84,6 +138,46 @@ struct Symmetric<Content>: View where Content: View {
             KeyContainer(model: model,
                          pitch: pitchRange[P8],
                          content: content)
+            // above main
+            VStack(spacing: 0){
+                KeyContainer(model: model,
+                             pitch: pitchRange[M9],
+                             content: content)
+                KeyContainer(model: model,
+                             pitch: pitchRange[m9],
+                             content: content)
+            }
+            VStack(spacing: 0){
+                KeyContainer(model: model,
+                             pitch: pitchRange[M10],
+                             content: content)
+                KeyContainer(model: model,
+                             pitch: pitchRange[m10],
+                             content: content)
+            }
+            KeyContainer(model: model,
+                         pitch: pitchRange[P11],
+                         content: content)
+            KeyContainer(model: model,
+                         pitch: pitchRange[P12],
+                         content: content)
+            .overlay() {
+                GeometryReader { proxy in
+                    let ttLength = tritoneLength(proxy.size)
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 0.125 * ttLength)
+                            .stroke(.black, lineWidth: 3)
+                            .frame(width: ttLength, height: ttLength)
+                        KeyContainer(model: model,
+                                     pitch: pitchRange[ttt],
+                                     zIndex: 1,
+                                     content: content)
+                        .frame(width: ttLength, height: ttLength)
+                    }
+                    .offset(x: -ttLength / 2.0, y: proxy.size.height / 2.0 - ttLength / 2.0)
+                }
+            }
+
         }
         .clipShape(Rectangle())
     }

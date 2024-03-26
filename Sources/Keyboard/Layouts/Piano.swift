@@ -30,7 +30,7 @@ struct Piano<Content>: View where Content: View {
                             if spacer.isBlackKey(Pitch(intValue: pitch.intValue)) {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 0.125 * spacer.blackKeyWidth(geo.size.width))
-                                        .stroke(.black, lineWidth: 2)
+                                        .stroke(.black, lineWidth: 3)
                                         .frame(width: spacer.blackKeyWidth(geo.size.width))
                                     KeyContainer(model: keyboard,
                                                  pitch: Pitch(intValue: pitch.intValue),
