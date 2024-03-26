@@ -37,7 +37,7 @@ struct Symmetric<Content>: View where Content: View {
             let P11 = pitchRange.index(after: M10)
             let ttt = pitchRange.index(after: P11)
             let P12 = pitchRange.index(after: ttt)
-
+            
             // below main
             KeyContainer(model: model,
                          pitch: pitchRange[dP5],
@@ -49,9 +49,6 @@ struct Symmetric<Content>: View where Content: View {
                 GeometryReader { proxy in
                     let ttLength = tritoneLength(proxy.size)
                     ZStack {
-                        RoundedRectangle(cornerRadius: 0.125 * ttLength)
-                            .stroke(.black, lineWidth: 3)
-                            .frame(width: ttLength, height: ttLength)
                         KeyContainer(model: model,
                                      pitch: pitchRange[dtt],
                                      zIndex: 1,
@@ -107,9 +104,6 @@ struct Symmetric<Content>: View where Content: View {
                 GeometryReader { proxy in
                     let ttLength = tritoneLength(proxy.size)
                     ZStack {
-                        RoundedRectangle(cornerRadius: 0.125 * ttLength)
-                            .stroke(.black, lineWidth: 3)
-                            .frame(width: ttLength, height: ttLength)
                         KeyContainer(model: model,
                                      pitch: pitchRange[tt],
                                      zIndex: 1,
@@ -165,9 +159,6 @@ struct Symmetric<Content>: View where Content: View {
                 GeometryReader { proxy in
                     let ttLength = tritoneLength(proxy.size)
                     ZStack {
-                        RoundedRectangle(cornerRadius: 0.125 * ttLength)
-                            .stroke(.black, lineWidth: 3)
-                            .frame(width: ttLength, height: ttLength)
                         KeyContainer(model: model,
                                      pitch: pitchRange[ttt],
                                      zIndex: 1,
@@ -177,7 +168,7 @@ struct Symmetric<Content>: View where Content: View {
                     .offset(x: -ttLength / 2.0, y: proxy.size.height / 2.0 - ttLength / 2.0)
                 }
             }
-
+            
         }
         .clipShape(Rectangle())
     }

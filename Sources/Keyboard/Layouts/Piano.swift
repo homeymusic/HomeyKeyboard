@@ -19,7 +19,7 @@ struct Piano<Content>: View where Content: View {
                 }
 
                 // Black keys.
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 0) {
                         Rectangle().opacity(0)
                             .frame(width: spacer.initialSpacerWidth(geo.size.width))
@@ -29,9 +29,6 @@ struct Piano<Content>: View where Content: View {
                         ForEach(spacer.pitchRange, id: \.self) { pitch in
                             if spacer.isBlackKey(Pitch(intValue: pitch.intValue)) {
                                 ZStack {
-                                    RoundedRectangle(cornerRadius: 0.125 * spacer.blackKeyWidth(geo.size.width))
-                                        .stroke(.black, lineWidth: 3)
-                                        .frame(width: spacer.blackKeyWidth(geo.size.width))
                                     KeyContainer(model: keyboard,
                                                  pitch: Pitch(intValue: pitch.intValue),
                                                  zIndex: 1,

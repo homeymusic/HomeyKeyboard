@@ -107,7 +107,7 @@ public struct KeyboardKey: View {
     }
     
     var isWhite: Bool {
-        pitch.note(in: .C).accidental == .natural
+        viewpoint == .diatonic ? pitch.note(in: .C).accidental == .natural : false
     }
 
     var textColor: Color {
@@ -154,14 +154,23 @@ public struct KeyboardKey: View {
     public var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: alignment) {
-                Rectangle()
-                    .foregroundColor(keyColor)
-                    .padding(.top, topPadding(proxy.size))
-                    .padding(.leading, leadingPadding(proxy.size))
-                    .cornerRadius(relativeCornerRadius(in: proxy.size))
-                    .padding(.top, negativeTopPadding(proxy.size))
-                    .padding(.leading, negativeLeadingPadding(proxy.size))
-                    .padding(.trailing, 0.5)
+                ZStack {
+                    Rectangle()
+                        .fill(.black)
+                        .padding(.top, topPadding(proxy.size))
+                        .padding(.leading, leadingPadding(proxy.size))
+                        .cornerRadius(relativeCornerRadius(in: proxy.size))
+                        .padding(.top, negativeTopPadding(proxy.size))
+                        .padding(.leading, negativeLeadingPadding(proxy.size))
+                    Rectangle()
+                        .fill(keyColor)
+                        .padding(.top, topPadding(proxy.size))
+                        .padding(.leading, leadingPadding(proxy.size))
+                        .cornerRadius(relativeCornerRadius(in: proxy.size))
+                        .padding(.top, negativeTopPadding(proxy.size))
+                        .padding(.leading, negativeLeadingPadding(proxy.size))
+                        .frame(width: proxy.size.width - 1, height: proxy.size.height - 1)
+                }
                 Text(text)
                     .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
                     .foregroundColor(textColor)
@@ -169,6 +178,7 @@ public struct KeyboardKey: View {
                 AnyShape(keySymbol)
                     .foregroundColor(symbolColor)
                     .aspectRatio(1.0, contentMode: .fit)
+                    .padding([.top, .bottom], 10)
                     .frame(width: proxy.size.width / pow(goldenRatio, 3))
             }
         }
