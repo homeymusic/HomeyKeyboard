@@ -3,8 +3,6 @@
 import SwiftUI
 import Tonic
 
-let goldenRatio: CGFloat = (1.0 + sqrt(5)) / 2
-
 public enum Viewpoint {
     case diatonic
     case intervallic
@@ -27,7 +25,8 @@ public struct KeyboardKey: View {
                 intervallicKeyColors: [CGColor] = IntervalColor.homey,
                 intervallicKeySymbols: [any Shape] = IntervalSymbol.homey,
                 intervallicSymbolColors: [CGColor] = IntervalColor.homey,
-                twoSymbolsOnPerfects: Bool = false,
+                intervallicSymbolSize: [CGFloat] = IntervalSymbolSize.homey,
+                centeredTritone: Bool = false,
                 backgroundColor: Color = .black,
                 whiteKeyColor: Color = .white,
                 blackKeyColor: Color = .black,
@@ -54,7 +53,8 @@ public struct KeyboardKey: View {
         self.intervallicKeyColors = intervallicKeyColors
         self.intervallicKeySymbols = intervallicKeySymbols
         self.intervallicSymbolColors = intervallicSymbolColors
-        self.twoSymbolsOnPerfects = twoSymbolsOnPerfects
+        self.intervallicSymbolSize = intervallicSymbolSize
+        self.centeredTritone = centeredTritone
         self.backgroundColor = backgroundColor
         self.whiteKeyColor = whiteKeyColor
         self.blackKeyColor = blackKeyColor
@@ -73,8 +73,9 @@ public struct KeyboardKey: View {
     var intervallicKeyColors: [CGColor]
     var intervallicKeySymbols: [any Shape]
     var intervallicSymbolColors: [CGColor]
+    var intervallicSymbolSize: [CGFloat]
     var backgroundColor: Color
-    var twoSymbolsOnPerfects: Bool
+    var centeredTritone: Bool
     var blackKeyColor: Color
     var pressedColor: Color?
     var flatTop: Bool
@@ -117,6 +118,10 @@ public struct KeyboardKey: View {
         }
     }
     
+    func symbolSize(_ size: CGSize) -> CGFloat {
+        return minDimension(size) * intervallicSymbolSize[Int(pitch.intervalClass(to: tonicPitch))]
+    }
+
     var isWhite: Bool {
         viewpoint == .diatonic ? pitch.note(in: .C).accidental == .natural : false
     }
@@ -173,6 +178,7 @@ public struct KeyboardKey: View {
                         .cornerRadius(relativeCornerRadius(in: proxy.size))
                         .padding(.top, negativeTopPadding(proxy.size))
                         .padding(.leading, negativeLeadingPadding(proxy.size))
+                    let borderSize = (centeredTritone && Int(pitch.intervalClass(to: tonicPitch)) == 6) || (pitch.note(in: .C).accidental != .natural && flatTop && alignment == .bottom) ? 2.0 : 1.0
                     Rectangle()
                         .fill(keyColor)
                         .padding(.top, topPadding(proxy.size))
@@ -180,15 +186,16 @@ public struct KeyboardKey: View {
                         .cornerRadius(relativeCornerRadius(in: proxy.size))
                         .padding(.top, negativeTopPadding(proxy.size))
                         .padding(.leading, negativeLeadingPadding(proxy.size))
-                        .frame(width: proxy.size.width - 1, height: proxy.size.height - 1)
+                        .frame(width: proxy.size.width - borderSize, height: proxy.size.height - borderSize)
                 }
+                .rotationEffect(Angle(degrees: (centeredTritone && (Int(pitch.intervalClass(to: tonicPitch)) == 6)) ? 45 : 0))
                 Text(text)
                     .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
                     .foregroundColor(textColor)
                     .padding(relativeFontSize(in: proxy.size) / 3.0)
                 if viewpoint == .intervallic {
-                    let symbolSize = proxy.size.width / pow(goldenRatio, 3)
-                    if twoSymbolsOnPerfects && (Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
+                    let symbolSize = symbolSize(proxy.size)
+                    if centeredTritone && (Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
                         VStack(spacing: 0) {
                             AnyShape(keySymbol)
                                 .foregroundColor(symbolColor)
@@ -205,7 +212,7 @@ public struct KeyboardKey: View {
                         AnyShape(keySymbol)
                             .foregroundColor(symbolColor)
                             .aspectRatio(1.0, contentMode: .fit)
-                            .padding([.top, .bottom], 10)
+                            .offset(y: alignment == .bottom ? -proxy.size.height * 0.2 : 0)
                             .frame(width: symbolSize)
                     }
                 }
