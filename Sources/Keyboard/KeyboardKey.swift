@@ -96,12 +96,9 @@ public struct KeyboardKey: View {
                 return color
             }
         case .intervallic:
-//            let color: Color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
             if activated {
-//                return color.adjust(brightness: -0.2)
                 return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: -0.2)
             } else {
-//                return color
                 return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
             }
         }
@@ -116,13 +113,9 @@ public struct KeyboardKey: View {
     }
     
     var symbolColor: Color {
-//        let color: Color = Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
-//        return activated ? color.adjust(brightness: +0.1) : color.adjust(brightness: -0.1)
         if activated {
-//                return color.adjust(brightness: -0.2)
             return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: +0.2)
         } else {
-//                return color
             return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: -0.1)
         }
 
