@@ -33,6 +33,7 @@ public struct KeyboardKey: View {
                 pressedColor: Color? = nil,
                 flatTop: Bool = false,
                 alignment: Alignment = .bottom,
+                isPianoLayout: Bool = false,
                 isActivatedExternally: Bool = false)
     {
         self.pitch = pitch
@@ -60,6 +61,7 @@ public struct KeyboardKey: View {
         self.blackKeyColor = blackKeyColor
         self.pressedColor = pressedColor
         self.flatTop = flatTop
+        self.isPianoLayout = isPianoLayout
         self.alignment = alignment
         self.isActivatedExternally = isActivatedExternally
     }
@@ -79,16 +81,17 @@ public struct KeyboardKey: View {
     var blackKeyColor: Color
     var pressedColor: Color?
     var flatTop: Bool
+    var isPianoLayout: Bool
     var alignment: Alignment
     var isActivatedExternally: Bool
     
     var keyColor: Color {
         switch viewpoint {
         case .diatonic:
-            let color: Color = pitch.note(in: .C).accidental == .natural ? whiteKeyColor : blackKeyColor
+            let color: Color = isWhite ? whiteKeyColor : blackKeyColor
             if activated {
                 if pressedColor == nil {
-                    return color.adjust(brightness: -0.1)
+                    return isWhite ? color.adjust(brightness: -0.3) : color.adjust(brightness: +0.3)
                 } else {
                     return pressedColor!
                 }
@@ -113,12 +116,21 @@ public struct KeyboardKey: View {
     }
     
     var symbolColor: Color {
-        if activated {
-            return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: +0.2)
+        let color: Color
+        if viewpoint == .diatonic {
+            color = isWhite ? .black : .white
+        } else if !activated {
+            color =  Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
         } else {
-            return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: -0.1)
+            color =  Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
         }
 
+        if activated {
+            return color.adjust(brightness: +0.2)
+        } else {
+            return color.adjust(brightness: -0.1)
+        }
+        
     }
     
     func symbolSize(_ size: CGSize) -> CGFloat {
@@ -126,7 +138,11 @@ public struct KeyboardKey: View {
     }
     
     var isWhite: Bool {
-        viewpoint == .diatonic ? pitch.note(in: .C).accidental == .natural : false
+        viewpoint == .diatonic && isPianoLayout && !isSmall
+    }
+    
+    var isSmall: Bool {
+        pitch.note(in: .C).accidental != .natural && isPianoLayout
     }
     
     var textColor: Color {
@@ -162,18 +178,20 @@ public struct KeyboardKey: View {
     
     func negativeTopPadding(_ size: CGSize) -> CGFloat {
         flatTop && alignment == .bottom ? -relativeCornerRadius(in: size) :
-        isWhite ? 0.5 : 0
+        isSmall ? 0.5 : 0
     }
     
     func negativeLeadingPadding(_ size: CGSize) -> CGFloat {
         flatTop && alignment == .trailing ? -relativeCornerRadius(in: size) :
-        isWhite ? 0.5 : 0
+        isSmall ? 0.5 : 0
     }
     
     public var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: alignment) {
                 ZStack {
+                    let borderSize = 3.0
+                    let borderApparentSize = (centeredTritone && Int(pitch.intervalClass(to: tonicPitch)) == 6) || isSmall ? 1.0 * borderSize : borderSize
                     Rectangle()
                         .fill(backgroundColor)
                         .padding(.top, topPadding(proxy.size))
@@ -181,7 +199,6 @@ public struct KeyboardKey: View {
                         .cornerRadius(relativeCornerRadius(in: proxy.size))
                         .padding(.top, negativeTopPadding(proxy.size))
                         .padding(.leading, negativeLeadingPadding(proxy.size))
-                    let borderSize = (centeredTritone && Int(pitch.intervalClass(to: tonicPitch)) == 6) || (pitch.note(in: .C).accidental != .natural && flatTop && alignment == .bottom) ? 2.0 : 1.0
                     Rectangle()
                         .fill(keyColor)
                         .padding(.top, topPadding(proxy.size))
@@ -189,35 +206,33 @@ public struct KeyboardKey: View {
                         .cornerRadius(relativeCornerRadius(in: proxy.size))
                         .padding(.top, negativeTopPadding(proxy.size))
                         .padding(.leading, negativeLeadingPadding(proxy.size))
-                        .frame(width: proxy.size.width - borderSize, height: proxy.size.height - borderSize)
+                        .frame(width: proxy.size.width - borderApparentSize, height: proxy.size.height - borderApparentSize)
                 }
                 .rotationEffect(Angle(degrees: (centeredTritone && (Int(pitch.intervalClass(to: tonicPitch)) == 6)) ? 45 : 0))
                 Text(text)
                     .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
                     .foregroundColor(textColor)
                     .padding(relativeFontSize(in: proxy.size) / 3.0)
-                if viewpoint == .intervallic {
-                    let symbolSize = symbolSize(proxy.size)
-                    if centeredTritone && (Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
-                        VStack(spacing: 0) {
-                            AnyShape(keySymbol)
-                                .foregroundColor(symbolColor)
-                                .aspectRatio(1.0, contentMode: .fit)
-                                .frame(width: symbolSize)
-                                .offset(y: proxy.size.height * 0.25 + 0.5 * symbolSize)
-                            AnyShape(keySymbol)
-                                .foregroundColor(symbolColor)
-                                .aspectRatio(1.0, contentMode: .fit)
-                                .frame(width: symbolSize)
-                                .offset(y: -proxy.size.height * 0.25 - 0.5 * symbolSize)
-                        }
-                    } else {
+                let symbolSize = symbolSize(proxy.size)
+                if centeredTritone && (Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
+                    VStack(spacing: 0) {
                         AnyShape(keySymbol)
                             .foregroundColor(symbolColor)
                             .aspectRatio(1.0, contentMode: .fit)
-                            .offset(y: alignment == .bottom ? -proxy.size.height * 0.2 : 0)
                             .frame(width: symbolSize)
+                            .offset(y: proxy.size.height * 0.25 + 0.5 * symbolSize)
+                        AnyShape(keySymbol)
+                            .foregroundColor(symbolColor)
+                            .aspectRatio(1.0, contentMode: .fit)
+                            .frame(width: symbolSize)
+                            .offset(y: -proxy.size.height * 0.25 - 0.5 * symbolSize)
                     }
+                } else if viewpoint == .intervallic || (isPianoLayout && Int(pitch.intervalClass(to: tonicPitch)) == 0) {
+                    AnyShape(keySymbol)
+                        .foregroundColor(symbolColor)
+                        .aspectRatio(1.0, contentMode: .fit)
+                        .offset(y: alignment == .bottom ? -proxy.size.height * (isSmall ? 0.3 : 0.2) : 0)
+                        .frame(width: symbolSize * (isSmall ? 1.25 : 1.0))
                 }
             }
         }
