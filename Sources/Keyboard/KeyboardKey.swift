@@ -63,7 +63,7 @@ public struct KeyboardKey: View {
         self.alignment = alignment
         self.isActivatedExternally = isActivatedExternally
     }
-
+    
     var pitch: Pitch
     var isActivated: Bool
     var viewpoint: Viewpoint
@@ -81,7 +81,7 @@ public struct KeyboardKey: View {
     var flatTop: Bool
     var alignment: Alignment
     var isActivatedExternally: Bool
-
+    
     var keyColor: Color {
         switch viewpoint {
         case .diatonic:
@@ -90,17 +90,19 @@ public struct KeyboardKey: View {
                 if pressedColor == nil {
                     return color.adjust(brightness: -0.1)
                 } else {
-                   return pressedColor!
+                    return pressedColor!
                 }
             } else {
                 return color
             }
         case .intervallic:
-        let color: Color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
-           if activated {
-               return color.adjust(brightness: -0.2)
+//            let color: Color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
+            if activated {
+//                return color.adjust(brightness: -0.2)
+                return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: -0.2)
             } else {
-                return color
+//                return color
+                return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
             }
         }
     }
@@ -114,59 +116,67 @@ public struct KeyboardKey: View {
     }
     
     var symbolColor: Color {
-        let color: Color = Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
-        return activated ? color.adjust(brightness: +0.1) : color.adjust(brightness: -0.1)
+//        let color: Color = Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
+//        return activated ? color.adjust(brightness: +0.1) : color.adjust(brightness: -0.1)
+        if activated {
+//                return color.adjust(brightness: -0.2)
+            return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: +0.2)
+        } else {
+//                return color
+            return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: -0.1)
+        }
+
     }
     
     func symbolSize(_ size: CGSize) -> CGFloat {
         return minDimension(size) * intervallicSymbolSize[Int(pitch.intervalClass(to: tonicPitch))]
     }
-
+    
     var isWhite: Bool {
         viewpoint == .diatonic ? pitch.note(in: .C).accidental == .natural : false
     }
-
+    
     var textColor: Color {
         return pitch.note(in: .C).accidental == .natural ? blackKeyColor : whiteKeyColor
     }
-
+    
     func minDimension(_ size: CGSize) -> CGFloat {
         return min(size.width, size.height)
     }
-
+    
     func isTall(size: CGSize) -> Bool {
         size.height > size.width
     }
-
+    
     // How much of the key height to take up with label
     func relativeFontSize(in containerSize: CGSize) -> CGFloat {
         minDimension(containerSize) * 0.333
     }
-
+    
     let relativeTextPadding = 0.05
-
+    
     func relativeCornerRadius(in containerSize: CGSize) -> CGFloat {
         minDimension(containerSize) * 0.125
     }
-
+    
     func topPadding(_ size: CGSize) -> CGFloat {
         flatTop && alignment == .bottom ? relativeCornerRadius(in: size) : 0
     }
-
+    
     func leadingPadding(_ size: CGSize) -> CGFloat {
         flatTop && alignment == .trailing ? relativeCornerRadius(in: size) : 0
     }
-
+    
     func negativeTopPadding(_ size: CGSize) -> CGFloat {
         flatTop && alignment == .bottom ? -relativeCornerRadius(in: size) :
-            isWhite ? 0.5 : 0
+        isWhite ? 0.5 : 0
     }
-
+    
     func negativeLeadingPadding(_ size: CGSize) -> CGFloat {
         flatTop && alignment == .trailing ? -relativeCornerRadius(in: size) :
-            isWhite ? 0.5 : 0
+        isWhite ? 0.5 : 0
     }
-
+    
     public var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: alignment) {
@@ -228,7 +238,7 @@ extension Color {
         var currentSaturation: CGFloat = 0
         var currentBrigthness: CGFloat = 0
         var currentOpacity: CGFloat = 0
-
+        
         if color.getHue(&currentHue, saturation: &currentSaturation, brightness: &currentBrigthness, alpha: &currentOpacity) {
             return Color(hue: currentHue + hue, saturation: currentSaturation + saturation, brightness: currentBrigthness + brightness, opacity: currentOpacity + opacity)
         }
