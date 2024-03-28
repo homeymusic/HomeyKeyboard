@@ -86,7 +86,7 @@ public struct KeyboardKey: View {
         switch viewpoint {
         case .diatonic:
             let color: Color = pitch.note(in: .C).accidental == .natural ? whiteKeyColor : blackKeyColor
-            if isActivatedExternally || isActivated {
+            if activated {
                 if pressedColor == nil {
                     return color.adjust(brightness: -0.1)
                 } else {
@@ -97,8 +97,8 @@ public struct KeyboardKey: View {
             }
         case .intervallic:
         let color: Color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
-           if isActivatedExternally || isActivated {
-               return color.adjust(brightness: -0.1)
+           if activated {
+               return color.adjust(brightness: -0.2)
             } else {
                 return color
             }
@@ -109,13 +109,13 @@ public struct KeyboardKey: View {
         return intervallicKeySymbols[Int(pitch.intervalClass(to: tonicPitch))]
     }
     
+    var activated: Bool {
+        isActivatedExternally || isActivated
+    }
+    
     var symbolColor: Color {
-        let color: Color = Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: -0.1)
-        if isActivatedExternally || isActivated {
-            return color.adjust(brightness: -0.1)
-        } else {
-            return color
-        }
+        let color: Color = Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
+        return activated ? color.adjust(brightness: +0.1) : color.adjust(brightness: -0.1)
     }
     
     func symbolSize(_ size: CGSize) -> CGFloat {
