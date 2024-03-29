@@ -118,7 +118,7 @@ public struct KeyboardKey: View {
     var symbolColor: Color {
         let color: Color
         if viewpoint == .diatonic {
-            color = isWhite ? .black : .white
+            color = isWhite ? .white.adjust(brightness: -0.1) : .black.adjust(brightness: +0.4)
         } else if !activated {
             color =  Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
         } else {
@@ -143,6 +143,10 @@ public struct KeyboardKey: View {
     
     var isSmall: Bool {
         pitch.note(in: .C).accidental != .natural && isPianoLayout
+    }
+    
+    var tonicOutlineColor: Color {
+        activated ? Color(intervallicSymbolColors[5]).adjust(brightness: 0.1) : Color(intervallicSymbolColors[5])
     }
     
     var textColor: Color {
@@ -189,9 +193,13 @@ public struct KeyboardKey: View {
     public var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: alignment) {
-                ZStack {
+                ZStack(alignment: isPianoLayout ? .top : alignment) {
                     let borderSize = 3.0
-                    let borderApparentSize = (centeredTritone && Int(pitch.intervalClass(to: tonicPitch)) == 6) || isSmall ? 1.0 * borderSize : borderSize
+                    let borderWidthApparentSize = (centeredTritone && Int(pitch.intervalClass(to: tonicPitch)) == 6) || isSmall ? 1.0 * borderSize : borderSize
+                    let borderHeightApparentSize = isPianoLayout && viewpoint == .intervallic ? borderWidthApparentSize / 2 : borderWidthApparentSize
+                    let outlineTonic: Bool = pitch == tonicPitch && viewpoint == .intervallic
+                    let _foo = print("pitch", pitch.midiNoteNumber)
+                    let _bar = print("outlineTonic", outlineTonic)
                     Rectangle()
                         .fill(backgroundColor)
                         .padding(.top, topPadding(proxy.size))
@@ -199,6 +207,16 @@ public struct KeyboardKey: View {
                         .cornerRadius(relativeCornerRadius(in: proxy.size))
                         .padding(.top, negativeTopPadding(proxy.size))
                         .padding(.leading, negativeLeadingPadding(proxy.size))
+                    if outlineTonic {
+                        Rectangle()
+                            .fill(tonicOutlineColor)
+                            .padding(.top, topPadding(proxy.size))
+                            .padding(.leading, leadingPadding(proxy.size))
+                            .cornerRadius(relativeCornerRadius(in: proxy.size))
+                            .padding(.top, negativeTopPadding(proxy.size))
+                            .padding(.leading, negativeLeadingPadding(proxy.size))
+                            .frame(width: proxy.size.width - borderWidthApparentSize, height: proxy.size.height - borderHeightApparentSize)
+                    }
                     Rectangle()
                         .fill(keyColor)
                         .padding(.top, topPadding(proxy.size))
@@ -206,7 +224,7 @@ public struct KeyboardKey: View {
                         .cornerRadius(relativeCornerRadius(in: proxy.size))
                         .padding(.top, negativeTopPadding(proxy.size))
                         .padding(.leading, negativeLeadingPadding(proxy.size))
-                        .frame(width: proxy.size.width - borderApparentSize, height: proxy.size.height - borderApparentSize)
+                        .frame(width: proxy.size.width - (outlineTonic ? 2.0 * borderWidthApparentSize: borderWidthApparentSize), height: proxy.size.height - (outlineTonic ? 2.0 * borderHeightApparentSize: borderHeightApparentSize))
                 }
                 .rotationEffect(Angle(degrees: (centeredTritone && (Int(pitch.intervalClass(to: tonicPitch)) == 6)) ? 45 : 0))
                 Text(text)
@@ -227,7 +245,7 @@ public struct KeyboardKey: View {
                             .frame(width: symbolSize)
                             .offset(y: -proxy.size.height * 0.25 - 0.5 * symbolSize)
                     }
-                } else if viewpoint == .intervallic || (isPianoLayout && Int(pitch.intervalClass(to: tonicPitch)) == 0) {
+                } else if viewpoint == .intervallic || (isPianoLayout && pitch == tonicPitch) {
                     AnyShape(keySymbol)
                         .foregroundColor(symbolColor)
                         .aspectRatio(1.0, contentMode: .fit)
