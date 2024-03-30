@@ -110,7 +110,13 @@ public struct KeyboardKey: View {
                 if activated {
                     return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
                 } else {
-                    return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
+                    let color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
+                    if isPianoLayout {
+                        return isSmall ? color.adjust(brightness: -0.1) : color.adjust(brightness: +0.1)
+                    } else {
+                        return color
+                    }
+                    
                 }
             } else {
                 let color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
@@ -207,7 +213,7 @@ public struct KeyboardKey: View {
             ZStack(alignment: alignment) {
                 ZStack(alignment: isPianoLayout ? .top : alignment) {
                     let borderSize = 3.0
-                    let borderWidthApparentSize = (centeredTritone && Int(pitch.intervalClass(to: tonicPitch)) == 6) || isSmall ? 1.0 * borderSize : borderSize
+                    let borderWidthApparentSize = (centeredTritone && Int(pitch.intervalClass(to: tonicPitch)) == 6) || isSmall ? 2.0 * borderSize : borderSize
                     let borderHeightApparentSize = isPianoLayout && viewpoint == .intervallic ? borderWidthApparentSize / 2 : borderWidthApparentSize
                     let outlineTonic: Bool = pitch == tonicPitch && viewpoint == .intervallic
                     let _foo = print("pitch", pitch.midiNoteNumber)
