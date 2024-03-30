@@ -131,9 +131,7 @@ public extension Keyboard where Content == KeyboardKey {
         content = {
             KeyboardKey(
                 pitch: $0,
-                isActivated: $1,
-                flatTop: flatTop,
-                alignment: alignment
+                isActivated: $1
             )
         }
     }

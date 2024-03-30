@@ -8,32 +8,25 @@ public enum Viewpoint {
     case intervallic
 }
 
-/// A default visual representation for a key.
+public enum FormFactor {
+    case isomorphic
+    case symmetric
+    case piano
+    case guitar
+}
+
 public struct KeyboardKey: View {
-    /// Initialize the keyboard key
-    /// - Parameters:
-    ///   - pitch: Pitch assigned to the key
-    ///   - isActivated: Whether to represent this key in the "down" state
-    ///   - text: Label on the key
-    ///   - color: Color of the activated key
-    ///   - isActivatedExternally: Usually used for representing incoming MIDI
     public init(pitch: Pitch,
                 isActivated: Bool,
                 viewpoint: Viewpoint = .intervallic,
+                formFactor: FormFactor = .symmetric,
                 tonicPitch: Pitch = Pitch(60),
                 text: String = "",
                 intervallicKeyColors: [CGColor] = IntervalColor.homeySubtle,
                 intervallicKeySymbols: [any Shape] = IntervalSymbol.homey,
                 intervallicSymbolColors: [CGColor] = IntervalColor.homey,
                 intervallicSymbolSize: [CGFloat] = IntervalSymbolSize.homey,
-                centeredTritone: Bool = false,
                 backgroundColor: Color = .black,
-                whiteKeyColor: Color = .white,
-                blackKeyColor: Color = .black,
-                pressedColor: Color? = nil,
-                flatTop: Bool = false,
-                alignment: Alignment = .center,
-                isPianoLayout: Bool = false,
                 subtle: Bool = true,
                 isActivatedExternally: Bool = false)
     {
@@ -56,15 +49,9 @@ public struct KeyboardKey: View {
         self.intervallicKeySymbols = intervallicKeySymbols
         self.intervallicSymbolColors = intervallicSymbolColors
         self.intervallicSymbolSize = intervallicSymbolSize
-        self.centeredTritone = centeredTritone
+        self.formFactor = formFactor
         self.backgroundColor = backgroundColor
-        self.whiteKeyColor = whiteKeyColor
-        self.blackKeyColor = blackKeyColor
-        self.pressedColor = pressedColor
-        self.flatTop = flatTop
-        self.isPianoLayout = isPianoLayout
         self.subtle = subtle
-        self.alignment = alignment
         self.isActivatedExternally = isActivatedExternally
     }
     
@@ -73,19 +60,13 @@ public struct KeyboardKey: View {
     var viewpoint: Viewpoint
     var tonicPitch: Pitch
     var text: String
-    var whiteKeyColor: Color
     var intervallicKeyColors: [CGColor]
     var intervallicKeySymbols: [any Shape]
     var intervallicSymbolColors: [CGColor]
     var intervallicSymbolSize: [CGFloat]
+    var formFactor: FormFactor
     var backgroundColor: Color
-    var centeredTritone: Bool
-    var blackKeyColor: Color
-    var pressedColor: Color?
-    var flatTop: Bool
-    var isPianoLayout: Bool
     var subtle: Bool
-    var alignment: Alignment
     var isActivatedExternally: Bool
     
     var activated: Bool {
@@ -98,7 +79,7 @@ public struct KeyboardKey: View {
             if activated {
                 return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
             } else {
-                return isWhite ? whiteKeyColor : blackKeyColor
+                return isWhite ? .white : .black
             }
         case .intervallic:
             if subtle {
@@ -106,7 +87,7 @@ public struct KeyboardKey: View {
                     return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
                 } else {
                     let color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
-                    if isPianoLayout {
+                    if formFactor == .piano {
                         return isSmall ? color.adjust(brightness: -0.1) : color.adjust(brightness: +0.1)
                     } else {
                         return color
@@ -150,11 +131,11 @@ public struct KeyboardKey: View {
     }
     
     var isWhite: Bool {
-        viewpoint == .diatonic && isPianoLayout && !isSmall
+        viewpoint == .diatonic && formFactor == .piano && !isSmall
     }
     
     var isSmall: Bool {
-        pitch.note(in: .C).accidental != .natural && isPianoLayout
+        pitch.note(in: .C).accidental != .natural && formFactor == .piano
     }
     
     var tonicOutlineColor: Color {
@@ -162,7 +143,7 @@ public struct KeyboardKey: View {
     }
     
     var textColor: Color {
-        return pitch.note(in: .C).accidental == .natural ? blackKeyColor : whiteKeyColor
+        return symbolColor
     }
     
     func minDimension(_ size: CGSize) -> CGFloat {
@@ -185,30 +166,28 @@ public struct KeyboardKey: View {
     }
     
     func topPadding(_ size: CGSize) -> CGFloat {
-        flatTop && alignment == .bottom ? relativeCornerRadius(in: size) : 0
+        formFactor == .piano ? relativeCornerRadius(in: size) : 0
     }
     
     func leadingPadding(_ size: CGSize) -> CGFloat {
-        flatTop && alignment == .trailing ? relativeCornerRadius(in: size) : 0
-    }
+         0
+     }
     
     func negativeTopPadding(_ size: CGSize) -> CGFloat {
-        flatTop && alignment == .bottom ? -relativeCornerRadius(in: size) :
-        isSmall ? 0.5 : 0
+        formFactor == .piano ? -relativeCornerRadius(in: size) : (isSmall ? 0.5 : 0)
     }
     
     func negativeLeadingPadding(_ size: CGSize) -> CGFloat {
-        flatTop && alignment == .trailing ? -relativeCornerRadius(in: size) :
-        isSmall ? 0.5 : 0
+        0.5
     }
     
     public var body: some View {
         GeometryReader { proxy in
-            ZStack(alignment: alignment) {
-                ZStack(alignment: isPianoLayout ? .top : alignment) {
+            ZStack(alignment: formFactor == .piano ? .bottom : .center) {
+                ZStack(alignment: formFactor == .piano ? .top : .center) {
                     let borderSize = 3.0
-                    let borderWidthApparentSize = (centeredTritone && Int(pitch.intervalClass(to: tonicPitch)) == 6) || isSmall ? 2.0 * borderSize : borderSize
-                    let borderHeightApparentSize = isPianoLayout && viewpoint == .intervallic ? borderWidthApparentSize / 2 : borderWidthApparentSize
+                    let borderWidthApparentSize = (formFactor == .symmetric && Int(pitch.intervalClass(to: tonicPitch)) == 6) || isSmall ? 2.0 * borderSize : borderSize
+                    let borderHeightApparentSize = formFactor == .piano && viewpoint == .intervallic ? borderWidthApparentSize / 2 : borderWidthApparentSize
                     let outlineTonic: Bool = pitch == tonicPitch && viewpoint == .intervallic
                     let _foo = print("pitch", pitch.midiNoteNumber)
                     let _bar = print("outlineTonic", outlineTonic)
@@ -238,13 +217,13 @@ public struct KeyboardKey: View {
                         .padding(.leading, negativeLeadingPadding(proxy.size))
                         .frame(width: proxy.size.width - (outlineTonic ? 2.0 * borderWidthApparentSize: borderWidthApparentSize), height: proxy.size.height - (outlineTonic ? 2.0 * borderHeightApparentSize: borderHeightApparentSize))
                 }
-                .rotationEffect(Angle(degrees: (centeredTritone && (Int(pitch.intervalClass(to: tonicPitch)) == 6)) ? 45 : 0))
+                .rotationEffect(Angle(degrees: (formFactor == .symmetric && (Int(pitch.intervalClass(to: tonicPitch)) == 6)) ? 45 : 0))
                 Text(text)
                     .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
                     .foregroundColor(textColor)
                     .padding(relativeFontSize(in: proxy.size) / 3.0)
                 let symbolSize = symbolSize(proxy.size)
-                if centeredTritone && (Int(pitch.intervalClass(to: tonicPitch)) == 0 || Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
+                if formFactor == .symmetric && (Int(pitch.intervalClass(to: tonicPitch)) == 0 || Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
                     VStack(spacing: 0) {
                         AnyShape(keySymbol)
                             .foregroundColor(symbolColor)
@@ -261,7 +240,7 @@ public struct KeyboardKey: View {
                     AnyShape(keySymbol)
                         .foregroundColor(symbolColor)
                         .aspectRatio(1.0, contentMode: .fit)
-                        .offset(y: alignment == .bottom ? -proxy.size.height * (isSmall ? 0.3 : 0.2) : 0)
+                        .offset(y: formFactor == .piano ? -proxy.size.height * (isSmall ? 0.3 : 0.2) : 0)
                         .frame(width: symbolSize * (isSmall ? 1.25 : 1.0))
                 }
             }
