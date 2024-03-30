@@ -34,6 +34,7 @@ public struct KeyboardKey: View {
                 flatTop: Bool = false,
                 alignment: Alignment = .bottom,
                 isPianoLayout: Bool = false,
+                subtle: Bool = false,
                 isActivatedExternally: Bool = false)
     {
         self.pitch = pitch
@@ -62,6 +63,7 @@ public struct KeyboardKey: View {
         self.pressedColor = pressedColor
         self.flatTop = flatTop
         self.isPianoLayout = isPianoLayout
+        self.subtle = subtle
         self.alignment = alignment
         self.isActivatedExternally = isActivatedExternally
     }
@@ -82,8 +84,13 @@ public struct KeyboardKey: View {
     var pressedColor: Color?
     var flatTop: Bool
     var isPianoLayout: Bool
+    var subtle: Bool
     var alignment: Alignment
     var isActivatedExternally: Bool
+    
+    var activated: Bool {
+        isActivatedExternally || isActivated
+    }
     
     var keyColor: Color {
         switch viewpoint {
@@ -99,10 +106,37 @@ public struct KeyboardKey: View {
                 return color
             }
         case .intervallic:
-            if activated {
-                return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))]).adjust(brightness: -0.2)
+            if subtle {
+                if activated {
+                    return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
+                } else {
+                    return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
+                }
             } else {
-                return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
+                let color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
+                return activated ? color.adjust(brightness: -0.2) : color
+            }
+        }
+    }
+        
+    var symbolColor: Color {
+        switch viewpoint {
+        case .diatonic:
+            return isWhite ? .white.adjust(brightness: -0.1) : .black.adjust(brightness: +0.4)
+        case .intervallic:
+            if subtle {
+                if activated {
+                    return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
+                } else {
+                    return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
+                }
+            } else {
+                let color =  Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
+                if activated {
+                    return color.adjust(brightness: +0.2)
+                } else {
+                    return color.adjust(brightness: -0.10)
+                }
             }
         }
     }
@@ -110,29 +144,7 @@ public struct KeyboardKey: View {
     var keySymbol: any Shape {
         return intervallicKeySymbols[Int(pitch.intervalClass(to: tonicPitch))]
     }
-    
-    var activated: Bool {
-        isActivatedExternally || isActivated
-    }
-    
-    var symbolColor: Color {
-        let color: Color
-        if viewpoint == .diatonic {
-            color = isWhite ? .white.adjust(brightness: -0.1) : .black.adjust(brightness: +0.4)
-        } else if !activated {
-            color =  Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
-        } else {
-            color =  Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
-        }
 
-        if activated {
-            return color.adjust(brightness: +0.2)
-        } else {
-            return color.adjust(brightness: -0.1)
-        }
-        
-    }
-    
     func symbolSize(_ size: CGSize) -> CGFloat {
         return minDimension(size) * intervallicSymbolSize[Int(pitch.intervalClass(to: tonicPitch))]
     }
@@ -232,7 +244,7 @@ public struct KeyboardKey: View {
                     .foregroundColor(textColor)
                     .padding(relativeFontSize(in: proxy.size) / 3.0)
                 let symbolSize = symbolSize(proxy.size)
-                if centeredTritone && (Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
+                if centeredTritone && (Int(pitch.intervalClass(to: tonicPitch)) == 0 || Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
                     VStack(spacing: 0) {
                         AnyShape(keySymbol)
                             .foregroundColor(symbolColor)
