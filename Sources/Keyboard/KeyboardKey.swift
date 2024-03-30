@@ -95,15 +95,10 @@ public struct KeyboardKey: View {
     var keyColor: Color {
         switch viewpoint {
         case .diatonic:
-            let color: Color = isWhite ? whiteKeyColor : blackKeyColor
             if activated {
-                if pressedColor == nil {
-                    return isWhite ? color.adjust(brightness: -0.3) : color.adjust(brightness: +0.3)
-                } else {
-                    return pressedColor!
-                }
+                return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
             } else {
-                return color
+                return isWhite ? whiteKeyColor : blackKeyColor
             }
         case .intervallic:
             if subtle {
@@ -126,23 +121,22 @@ public struct KeyboardKey: View {
     }
         
     var symbolColor: Color {
-        switch viewpoint {
-        case .diatonic:
-            return isWhite ? .white.adjust(brightness: -0.1) : .black.adjust(brightness: +0.4)
-        case .intervallic:
-            if subtle {
-                if activated {
-                    return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
+        if subtle {
+            if activated {
+                if viewpoint ==  .diatonic {
+                    return isWhite ? .white : .black
                 } else {
-                    return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
+                    return Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
                 }
             } else {
-                let color =  Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
-                if activated {
-                    return color.adjust(brightness: +0.2)
-                } else {
-                    return color.adjust(brightness: -0.10)
-                }
+                return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
+            }
+        } else {
+            let color =  Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
+            if activated {
+                return color.adjust(brightness: +0.2)
+            } else {
+                return color.adjust(brightness: -0.10)
             }
         }
     }
@@ -263,7 +257,7 @@ public struct KeyboardKey: View {
                             .frame(width: symbolSize)
                             .offset(y: -proxy.size.height * 0.25 - 0.5 * symbolSize)
                     }
-                } else if viewpoint == .intervallic || (isPianoLayout && pitch == tonicPitch) {
+                } else /*if viewpoint == .intervallic || (isPianoLayout && pitch == tonicPitch)*/ {
                     AnyShape(keySymbol)
                         .foregroundColor(symbolColor)
                         .aspectRatio(1.0, contentMode: .fit)
