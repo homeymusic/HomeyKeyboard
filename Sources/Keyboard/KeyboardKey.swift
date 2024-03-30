@@ -189,8 +189,6 @@ public struct KeyboardKey: View {
                     let borderWidthApparentSize = (formFactor == .symmetric && Int(pitch.intervalClass(to: tonicPitch)) == 6) || isSmall ? 2.0 * borderSize : borderSize
                     let borderHeightApparentSize = formFactor == .piano && viewpoint == .intervallic ? borderWidthApparentSize / 2 : borderWidthApparentSize
                     let outlineTonic: Bool = pitch == tonicPitch && viewpoint == .intervallic
-                    let _foo = print("pitch", pitch.midiNoteNumber)
-                    let _bar = print("outlineTonic", outlineTonic)
                     Rectangle()
                         .fill(backgroundColor)
                         .padding(.top, topPadding(proxy.size))
