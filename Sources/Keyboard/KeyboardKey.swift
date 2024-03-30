@@ -19,10 +19,10 @@ public struct KeyboardKey: View {
     ///   - isActivatedExternally: Usually used for representing incoming MIDI
     public init(pitch: Pitch,
                 isActivated: Bool,
-                viewpoint: Viewpoint = .diatonic,
+                viewpoint: Viewpoint = .intervallic,
                 tonicPitch: Pitch = Pitch(60),
-                text: String = "unset",
-                intervallicKeyColors: [CGColor] = IntervalColor.homey,
+                text: String = "",
+                intervallicKeyColors: [CGColor] = IntervalColor.homeySubtle,
                 intervallicKeySymbols: [any Shape] = IntervalSymbol.homey,
                 intervallicSymbolColors: [CGColor] = IntervalColor.homey,
                 intervallicSymbolSize: [CGFloat] = IntervalSymbolSize.homey,
@@ -32,9 +32,9 @@ public struct KeyboardKey: View {
                 blackKeyColor: Color = .black,
                 pressedColor: Color? = nil,
                 flatTop: Bool = false,
-                alignment: Alignment = .bottom,
+                alignment: Alignment = .center,
                 isPianoLayout: Bool = false,
-                subtle: Bool = false,
+                subtle: Bool = true,
                 isActivatedExternally: Bool = false)
     {
         self.pitch = pitch
@@ -257,7 +257,7 @@ public struct KeyboardKey: View {
                             .frame(width: symbolSize)
                             .offset(y: -proxy.size.height * 0.25 - 0.5 * symbolSize)
                     }
-                } else /*if viewpoint == .intervallic || (isPianoLayout && pitch == tonicPitch)*/ {
+                } else  {
                     AnyShape(keySymbol)
                         .foregroundColor(symbolColor)
                         .aspectRatio(1.0, contentMode: .fit)

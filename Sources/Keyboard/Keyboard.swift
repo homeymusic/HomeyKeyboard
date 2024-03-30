@@ -13,7 +13,6 @@ public struct Keyboard<Content>: Identifiable, View where Content: View {
     @StateObject public var model: KeyboardModel = .init()
 
     var layout: KeyboardLayout
-    public let icon: Image
     var latching: Bool
     var noteOn: (Pitch, CGPoint) -> Void
     var noteOff: (Pitch) -> Void
@@ -26,7 +25,6 @@ public struct Keyboard<Content>: Identifiable, View where Content: View {
     ///   - noteOff: Closure to perform when a note ends
     ///   - content: View defining how to render a specific key
     public init(layout: KeyboardLayout = .piano(pitchRange: Pitch(60) ... Pitch(72)),
-                icon: Image = Image(systemName: "questionmark"),
                 latching: Bool = false,
                 noteOn: @escaping (Pitch, CGPoint) -> Void = { _, _ in },
                 noteOff: @escaping (Pitch) -> Void = { _ in },
@@ -34,7 +32,6 @@ public struct Keyboard<Content>: Identifiable, View where Content: View {
     {
         self.latching = latching
         self.layout = layout
-        self.icon = icon
         self.noteOn = noteOn
         self.noteOff = noteOff
         self.content = content
@@ -104,13 +101,11 @@ public extension Keyboard where Content == KeyboardKey {
     ///   - noteOn: Closure to perform when a key is pressed
     ///   - noteOff: Closure to perform when a note ends
     init(layout: KeyboardLayout = .piano(pitchRange: Pitch(60) ... Pitch(72)),
-         icon: Image = Image(systemName: "questionmark"),
          latching: Bool = false,
          noteOn: @escaping (Pitch, CGPoint) -> Void = { _, _ in },
          noteOff: @escaping (Pitch) -> Void = { _ in })
     {
         self.layout = layout
-        self.icon = icon
         self.latching = latching
         self.noteOn = noteOn
         self.noteOff = noteOff
