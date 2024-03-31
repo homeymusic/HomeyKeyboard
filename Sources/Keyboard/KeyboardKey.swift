@@ -265,7 +265,6 @@ public struct Door: View {
     var offset: CGFloat = 0.0
     
     public var body: some View {
-        let _foo = print("door offset \(offset)")
         let doorHeight = symbolSize * 0.4
         Rectangle()
             .foregroundColor(keyColor)
