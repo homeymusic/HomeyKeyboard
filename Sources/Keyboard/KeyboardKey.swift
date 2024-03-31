@@ -211,7 +211,6 @@ public struct KeyboardKey: View {
                         .padding(.leading, negativeLeadingPadding(proxy.size))
                         .frame(width: proxy.size.width - (outlineTonic ? 2.0 * borderWidthApparentSize: borderWidthApparentSize), height: proxy.size.height - (outlineTonic ? 2.0 * borderHeightApparentSize: borderHeightApparentSize))
                 }
-                .rotationEffect(Angle(degrees: (formFactor == .symmetric && (Int(pitch.intervalClass(to: tonicPitch)) == 6)) ? 45 : 0))
                 Text(text)
                     .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
                     .foregroundColor(textColor)
