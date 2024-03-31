@@ -138,10 +138,6 @@ public struct KeyboardKey: View {
         pitch.note(in: .C).accidental != .natural && formFactor == .piano
     }
     
-    var tonicOutlineColor: Color {
-        activated ? Color(intervallicSymbolColors[5]).adjust(brightness: 0.1) : Color(intervallicSymbolColors[5])
-    }
-    
     var textColor: Color {
         return symbolColor
     }
@@ -188,7 +184,7 @@ public struct KeyboardKey: View {
                     let borderSize = 3.0
                     let borderWidthApparentSize = (formFactor == .symmetric && Int(pitch.intervalClass(to: tonicPitch)) == 6) || isSmall ? 2.0 * borderSize : borderSize
                     let borderHeightApparentSize = formFactor == .piano && viewpoint == .intervallic ? borderWidthApparentSize / 2 : borderWidthApparentSize
-                    let outlineTonic: Bool = pitch == tonicPitch && viewpoint == .intervallic
+                    let outlineTonic: Bool = Int(pitch.intervalClass(to: tonicPitch)) == 0 && viewpoint == .intervallic
                     Rectangle()
                         .fill(backgroundColor)
                         .padding(.top, topPadding(proxy.size))
@@ -198,7 +194,7 @@ public struct KeyboardKey: View {
                         .padding(.leading, negativeLeadingPadding(proxy.size))
                     if outlineTonic {
                         Rectangle()
-                            .fill(tonicOutlineColor)
+                            .fill(symbolColor)
                             .padding(.top, topPadding(proxy.size))
                             .padding(.leading, leadingPadding(proxy.size))
                             .cornerRadius(relativeCornerRadius(in: proxy.size))
