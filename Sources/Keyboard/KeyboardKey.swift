@@ -123,7 +123,7 @@ public struct KeyboardKey: View {
     }
     
     var keySymbol: any Shape {
-        return intervallicKeySymbols[Int(pitch.intervalClass(to: tonicPitch))]
+        return intervallicKeySymbols[pitch == tonicPitch ? 12 : Int(pitch.intervalClass(to: tonicPitch))]
     }
     
     func symbolLength(_ size: CGSize) -> CGFloat {
@@ -180,42 +180,12 @@ public struct KeyboardKey: View {
     public var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: formFactor == .piano ? .bottom : .center) {
-                ZStack(alignment: formFactor == .piano ? .top : .center) {
-                    let borderSize = isSmall ? 1.0 : 3.0
-                    let borderWidthApparentSize = (formFactor == .symmetric && Int(pitch.intervalClass(to: tonicPitch)) == 6) || isSmall ? 2.0 * borderSize : borderSize
-                    let borderHeightApparentSize = formFactor == .piano && viewpoint == .intervallic ? borderWidthApparentSize / 2 : borderWidthApparentSize
-                    let outlineTonic: Bool = Int(pitch.intervalClass(to: tonicPitch)) == 0 && viewpoint == .intervallic
-                    Rectangle()
-                        .fill(backgroundColor)
-                        .padding(.top, topPadding(proxy.size))
-                        .padding(.leading, leadingPadding(proxy.size))
-                        .cornerRadius(relativeCornerRadius(in: proxy.size))
-                        .padding(.top, negativeTopPadding(proxy.size))
-                        .padding(.leading, negativeLeadingPadding(proxy.size))
-                    if outlineTonic {
-                        Rectangle()
-                            .fill(symbolColor)
-                            .padding(.top, topPadding(proxy.size))
-                            .padding(.leading, leadingPadding(proxy.size))
-                            .cornerRadius(relativeCornerRadius(in: proxy.size))
-                            .padding(.top, negativeTopPadding(proxy.size))
-                            .padding(.leading, negativeLeadingPadding(proxy.size))
-                            .frame(width: proxy.size.width - borderWidthApparentSize, height: proxy.size.height - borderHeightApparentSize)
-                    }
-                    Rectangle()
-                        .fill(keyColor)
-                        .padding(.top, topPadding(proxy.size))
-                        .padding(.leading, leadingPadding(proxy.size))
-                        .cornerRadius(relativeCornerRadius(in: proxy.size))
-                        .padding(.top, negativeTopPadding(proxy.size))
-                        .padding(.leading, negativeLeadingPadding(proxy.size))
-                        .frame(width: proxy.size.width - (outlineTonic ? 2.0 * borderWidthApparentSize: borderWidthApparentSize), height: proxy.size.height - (outlineTonic ? 2.0 * borderHeightApparentSize: borderHeightApparentSize))
-                }
+                KeyView(keyboardKey: self, proxySize: proxy.size)
                 Text(text)
                     .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
                     .foregroundColor(textColor)
                     .padding(relativeFontSize(in: proxy.size) / 3.0)
-                Symbol(keyboardKey: self, proxySize: proxy.size)
+                LabelView(keyboardKey: self, proxySize: proxy.size)
             }
         }
     }
