@@ -1,6 +1,6 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Brian McAuliff Mulloy on 3/31/24.
 //
@@ -17,29 +17,40 @@ public struct SymbolView: View {
             VStack(spacing: 0) {
                 let offset = proxySize.height * 0.25 + 0.5 * symbolAdjustedLength
                 ZStack {
-                    AnyShape(keyboardKey.keySymbol)
-                        .foregroundColor(keyboardKey.symbolColor)
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .frame(width: symbolAdjustedLength)
-                        .offset(y: offset)
+                    ActualSymbolView(keyboardKey: keyboardKey, proxySize: proxySize, width: symbolAdjustedLength)
                 }
+                .offset(y: offset)
                 ZStack {
-                    AnyShape(keyboardKey.keySymbol)
-                        .foregroundColor(keyboardKey.symbolColor)
-                        .aspectRatio(1.0, contentMode: .fit)
-                        .frame(width: symbolAdjustedLength)
-                        .offset(y: -offset)
+                    ActualSymbolView(keyboardKey: keyboardKey, proxySize: proxySize, width: symbolAdjustedLength)
                 }
+                .offset(y: -offset)
             }
         } else  {
             let offset = keyboardKey.formFactor == .piano ? -proxySize.height * (keyboardKey.isSmall ? 0.3 : 0.2) : 0
             ZStack {
-                AnyShape(keyboardKey.keySymbol)
-                    .foregroundColor(keyboardKey.symbolColor)
-                    .aspectRatio(1.0, contentMode: .fit)
+                VStack {
+                    Spacer()
+                    Text(keyboardKey.pitch.note(in: .C).description)
+                    Spacer()
+                    Text("P1")
+                    Spacer()
+                }
+                ActualSymbolView(keyboardKey: keyboardKey, proxySize: proxySize, width: symbolAdjustedLength)
                     .offset(y: offset)
-                    .frame(width: symbolAdjustedLength)
             }
         }
+    }
+}
+
+struct ActualSymbolView: View {
+    var keyboardKey: KeyboardKey
+    var proxySize: CGSize
+    var width: CGFloat
+    
+    var body: some View {
+        AnyShape(keyboardKey.keySymbol)
+            .foregroundColor(keyboardKey.symbolColor)
+            .aspectRatio(1.0, contentMode: .fit)
+            .frame(width: width)
     }
 }
