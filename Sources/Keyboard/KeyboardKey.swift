@@ -69,6 +69,19 @@ public struct KeyboardKey: View {
     var subtle: Bool
     var isActivatedExternally: Bool
     
+    public var body: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: formFactor == .piano ? .bottom : .center) {
+                KeyView(keyboardKey: self, proxySize: proxy.size)
+                Text(text)
+                    .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
+                    .foregroundColor(textColor)
+                    .padding(relativeFontSize(in: proxy.size) / 3.0)
+                LabelView(keyboardKey: self, proxySize: proxy.size)
+            }
+        }
+    }
+
     var activated: Bool {
         isActivatedExternally || isActivated
     }
@@ -82,21 +95,29 @@ public struct KeyboardKey: View {
                 return isWhite ? .white : .black
             }
         case .intervallic:
+            let majorMinorColor = Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
+            let keyColor = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
+            let pianoColor = isSmall ? keyColor.adjust(brightness: -0.1) : keyColor.adjust(brightness: +0.1)
             if subtle {
                 if activated {
-                    return Color(intervallicSymbolColors[Int(pitch.intervalClass(to: tonicPitch))])
+                    return majorMinorColor
                 } else {
-                    let color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
                     if formFactor == .piano {
-                        return isSmall ? color.adjust(brightness: -0.1) : color.adjust(brightness: +0.1)
+                        return pianoColor
                     } else {
-                        return color
+                        return keyColor
                     }
-                    
                 }
             } else {
-                let color = Color(intervallicKeyColors[Int(pitch.intervalClass(to: tonicPitch))])
-                return activated ? color.adjust(brightness: -0.2) : color
+                if activated {
+                    if formFactor == .piano {
+                        return pianoColor
+                    } else {
+                        return keyColor
+                    }
+                } else {
+                    return majorMinorColor
+                }
             }
         }
     }
@@ -177,18 +198,6 @@ public struct KeyboardKey: View {
         0.0
     }
     
-    public var body: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: formFactor == .piano ? .bottom : .center) {
-                KeyView(keyboardKey: self, proxySize: proxy.size)
-                Text(text)
-                    .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
-                    .foregroundColor(textColor)
-                    .padding(relativeFontSize(in: proxy.size) / 3.0)
-                LabelView(keyboardKey: self, proxySize: proxy.size)
-            }
-        }
-    }
 }
 
 extension Color {
