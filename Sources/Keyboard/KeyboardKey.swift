@@ -126,7 +126,7 @@ public struct KeyboardKey: View {
         return intervallicKeySymbols[Int(pitch.intervalClass(to: tonicPitch))]
     }
     
-    func symbolSize(_ size: CGSize) -> CGFloat {
+    func symbolLength(_ size: CGSize) -> CGFloat {
         return minDimension(size) * intervallicSymbolSize[Int(pitch.intervalClass(to: tonicPitch))]
     }
     
@@ -215,61 +215,9 @@ public struct KeyboardKey: View {
                     .font(Font(.init(.system, size: relativeFontSize(in: proxy.size))))
                     .foregroundColor(textColor)
                     .padding(relativeFontSize(in: proxy.size) / 3.0)
-                let symbolSize = symbolSize(proxy.size) * (isSmall ? 1.25 : 1.0)
-                if formFactor == .symmetric && (Int(pitch.intervalClass(to: tonicPitch)) == 0 || Int(pitch.intervalClass(to: tonicPitch)) == 5 || Int(pitch.intervalClass(to: tonicPitch)) == 7) {
-                    VStack(spacing: 0) {
-                        let offset = proxy.size.height * 0.25 + 0.5 * symbolSize
-                        ZStack {
-                            AnyShape(keySymbol)
-                                .foregroundColor(symbolColor)
-                                .aspectRatio(1.0, contentMode: .fit)
-                                .frame(width: symbolSize)
-                                .offset(y: offset)
-                            if pitch == tonicPitch {
-                                Door(symbolSize: symbolSize, keyColor: keyColor, offset: offset)
-                            }
-                        }
-                        ZStack {
-                            AnyShape(keySymbol)
-                                .foregroundColor(symbolColor)
-                                .aspectRatio(1.0, contentMode: .fit)
-                                .frame(width: symbolSize)
-                                .offset(y: -offset)
-                            if pitch == tonicPitch {
-                                Door(symbolSize: symbolSize, keyColor: keyColor, offset: -offset)
-                            }
-                        }
-                    }
-                } else  {
-                    let offset = formFactor == .piano ? -proxy.size.height * (isSmall ? 0.3 : 0.2) : 0
-                    ZStack {
-                        AnyShape(keySymbol)
-                            .foregroundColor(symbolColor)
-                            .aspectRatio(1.0, contentMode: .fit)
-                            .offset(y: offset)
-                            .frame(width: symbolSize)
-                        if pitch == tonicPitch {
-                            Door(symbolSize: symbolSize, keyColor: keyColor, offset: offset + (formFactor == .piano ? 0.1 : 0.0))
-                        }
-                    }
-                }
+                Symbol(keyboardKey: self, proxySize: proxy.size)
             }
         }
-    }
-}
-
-public struct Door: View {
-    
-    var symbolSize: CGFloat
-    var keyColor: Color
-    var offset: CGFloat = 0.0
-    
-    public var body: some View {
-        let doorHeight = symbolSize * 0.4
-        Rectangle()
-            .foregroundColor(keyColor)
-            .frame(width: doorHeight * 0.5, height: doorHeight)
-            .offset(y: offset + (symbolSize - doorHeight) * 0.5)
     }
 }
 
